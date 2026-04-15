@@ -1,3 +1,9 @@
+mongo-c-driver (1.24.3-1deepin1) unstable; urgency=medium
+
+  * Fix CVE-2026-4359: Fix handling of malformed HTTP response
+
+ -- deepin-ci-robot <packages@deepin.org>  Wed, 15 Apr 2026 14:33:07 +0800
+
 mongo-c-driver (1.24.3-1) unstable; urgency=medium
 
   * New upstream release
