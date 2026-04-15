@@ -1,0 +1,29 @@
+Description: Fix handling of HTTP response
+ A compromised third party cloud server or man-in-the-middle attacker could
+ send a malformed HTTP response and cause a crash in applications using the
+ MongoDB C driver. This patch ensures a NULL terminator follows the HTTP
+ response content to prevent potential crashes.
+Author: Kevin Albertson <kevin.albertson@mongodb.com>
+Origin: upstream, https://github.com/mongodb/mongo-c-driver/commit/b93ebe6b99e614b49a24316c7a295eb3f08af603
+Bug: https://jira.mongodb.org/browse/CDRIVER-6251
+Bug-Debian: https://security-tracker.debian.org/tracker/CVE-2026-4359
+Forwarded: not-needed
+
+--- a/src/libmongoc/src/mongoc/mongoc-http.c
++++ b/src/libmongoc/src/mongoc/mongoc-http.c
+@@ -217,6 +217,15 @@ _mongoc_http_send (const mongoc_http_request_t *req,
+       goto fail;
+    }
+
++   // Ensure NULL terminator follows content
++   {
++      if (!_mongoc_buffer_append(&http_response_buf, (const uint8_t[]){0u}, 1)) {
++         bson_set_error(error, MONGOC_ERROR_STREAM, MONGOC_ERROR_STREAM_SOCKET, "Failed to buffer HTTP response");
++         goto fail;
++      }
++      http_response_buf.len--;
++   }
++
+    http_response_str = (char *) http_response_buf.data;
+    const char *const resp_end_ptr = http_response_str + http_response_buf.len;
+
